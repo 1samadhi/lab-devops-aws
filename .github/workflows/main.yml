@@ -1,0 +1,34 @@
+name: CI - Build and Push Docker Image
+
+# Se dispara ÚNICAMENTE cuando se abre o actualiza un Pull Request hacia main
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    name: Build Docker Image and Push to Docker Hub
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Descarga el código del repositorio en el runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Paso 2: Login en Docker Hub usando los secrets configurados en el repo
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.USER_DOCKERHUB }}
+          password: ${{ secrets.PASSWORD_DOCKERHUB }}
+
+      # Paso 3: Construye la imagen Docker desde el Dockerfile en la raíz del repo
+      - name: Build Docker image
+        run: |
+          docker build -t samadhi1/lab-devops-aws:latest .
+
+      # Paso 4: Sube la imagen al repositorio personal en Docker Hub
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push samadhi1/lab-devops-aws:latest
